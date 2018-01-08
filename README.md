@@ -1,4 +1,4 @@
-# twitterAPI
+# TwitterAPI
 
 A python wrapper for the Twitter API
 
