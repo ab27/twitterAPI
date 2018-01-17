@@ -21,23 +21,29 @@ class Api:
                            access_token_key, access_token_secret)
 
     def GetHomeTimeline(self):
-        r = requests.get('https://api.twitter.com/1.1/statuses/home_timeline.json', 
-                          auth=self.__auth)
+        r = requests.get('https://api.twitter.com/1.1/statuses/home_timeline.json?tweet_mode=extended', auth=self.__auth)
         
-        timeline = json.loads(r.text)
+        timeline = json.loads(r.text) 
+        result = []
         for t in timeline:
-            print(t['text'] + '\n')
+            if 'retweeted_status' not in t:
+                result.append(t['full_text'])
+            else:
+                result.append(t['retweeted_status']['full_text'])       
+        return json.dumps(result)
+        
 
     def GetUserTimeline(self, username):
         url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=' + username + '&count=20&tweet_mode=extended'
         r = requests.get(url, auth=self.__auth)
         timeline = json.loads(r.text)
-        # print(timeline)
+        result = []
         for t in timeline:
             if 'retweeted_status' not in t:
-                print(t['full_text'])
+                result.append(t['full_text'])
             else:
-                print('RT: ' + t['retweeted_status']['full_text'])
+                result.append(t['retweeted_status']['full_text'])       
+        return json.dumps(result)
     
     # returns list names with list ids
     def GetLists(self):
@@ -45,18 +51,19 @@ class Api:
         r = requests.get(url, auth=self.__auth)
         lists = json.loads(r.text)
 
-        return [(l['name'], l['id_str']) for l in lists]
+        return {l['name']: l['id_str'] for l in lists}
 
     def GetListStatuses(self, list_id):
         url = 'https://api.twitter.com/1.1/lists/statuses.json?list_id='+list_id+'&cursor=-1&tweet_mode=extended'
         r = requests.get(url, auth=self.__auth)
         timeline = json.loads(r.text)
-        # print(timeline)
+        result = []
         for t in timeline:
             if 'retweeted_status' not in t:
-                print(t['full_text'])
+                result.append(t['full_text'])
             else:
-                print('RT: ' + t['retweeted_status']['full_text'])
+                result.append(t['retweeted_status']['full_text'])       
+        return json.dumps(result)
 
     def GetListMembers(self, list_id):
         url = 'https://api.twitter.com/1.1/lists/members.json?list_id='+list_id+'&cursor=-1'
