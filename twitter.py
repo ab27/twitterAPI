@@ -1,6 +1,7 @@
 import requests
 import json
 
+from functools import reduce
 from requests_oauthlib import OAuth1
 
 # >>> import twitter
@@ -23,7 +24,7 @@ class Api:
     def GetHomeTimeline(self):
         r = requests.get('https://api.twitter.com/1.1/statuses/home_timeline.json?tweet_mode=extended', auth=self.__auth)
         
-        timeline = json.loads(r.text) 
+        timeline = json.loads(r.text)
         result = []
         for t in timeline:
             if 'retweeted_status' not in t:
@@ -76,12 +77,12 @@ class Api:
         s = ""
 
         if type(members) is list:
-            s = reduce( (lambda x, y: x + y), members )  
+            s = reduce( (lambda x, y: x +','+ y), members )  
 
         if type(members) is str:
             s = members
         
-        url = 'https://api.twitter.com/1.1/lists/members/create_all.json?screen_name='+members+'&list_id='+list_id
+        url = 'https://api.twitter.com/1.1/lists/members/create_all.json?screen_name='+s+'&list_id='+list_id
 
         r = requests.post(url, auth=self.__auth)
         return json.loads(r.text)
